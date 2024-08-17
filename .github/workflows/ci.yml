@@ -1,0 +1,51 @@
+---
+name: CI/CD
+'on':
+  pull_request:
+  push:
+    branches:
+      - main
+  schedule:
+    - cron: '0 0 * * *'
+
+jobs:
+
+  build:
+    name: Build and test docker
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the codebase.
+        uses: actions/checkout@main
+
+      - name: Build docker image.
+        run: docker build --no-cache --tag aminvakil/ansible-lint:${GITHUB_RUN_ID} .
+
+      - name: Run Trivy vulnerability scanner.
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: aminvakil/ansible-lint:${{ github.run_id }}
+          exit-code: '1'
+
+  deploy:
+    if: ${{ github.ref == 'refs/heads/main' }}
+    needs: [build]
+    name: Push to Quay
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the codebase.
+        uses: actions/checkout@main
+
+      - name: Login to Quay
+        uses: docker/login-action@master
+        with:
+          registry: quay.io
+          username: ${{ secrets.QUAY_USERNAME }}
+          password: ${{ secrets.QUAY_PASSWORD }}
+
+      - name: Push to Quay
+        uses: docker/build-push-action@master
+        with:
+          file: ./Dockerfile
+          pull: true
+          push: true
+          tags: quay.io/aminvakil/ansible-lint:latest
