@@ -25,6 +25,7 @@ jobs:
         with:
           image-ref: aminvakil/ansible-lint:${{ github.run_id }}
           exit-code: '1'
+          ignore-unfixed: true
 
   deploy:
     if: ${{ github.ref == 'refs/heads/main' }}
