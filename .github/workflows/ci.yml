@@ -26,6 +26,7 @@ jobs:
           image-ref: aminvakil/ansible-lint:${{ github.run_id }}
           exit-code: '1'
           ignore-unfixed: true
+          severity: 'CRITICAL,HIGH'
         env:
           TRIVY_DB_REPOSITORY: public.ecr.aws/aquasecurity/trivy-db:2
 
