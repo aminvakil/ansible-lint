@@ -20,6 +20,9 @@ jobs:
       - name: Build docker image.
         run: docker build --no-cache --tag aminvakil/ansible-lint:${GITHUB_RUN_ID} .
 
+      - name: Test ansible-lint.
+        run: docker run --rm aminvakil/ansible-lint:${GITHUB_RUN_ID} ansible-lint --version
+
       - name: Run Trivy vulnerability scanner.
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
